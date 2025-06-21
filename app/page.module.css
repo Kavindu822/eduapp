@@ -1,28 +1,62 @@
+/* Make container a flex column for sticky footer */
 .container {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 20px 30px;
-  background-color: #f9fafe;
-  border-radius: 12px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #222;
-  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 2rem;
+  font-family: "Inter", sans-serif;
+
+  /* Radial gradient background with your colors */
+  background: radial-gradient(circle at center, #db9cdb 0%, #640259 70%);
+  color: #333; /* base text color */
+}
+
+/* Main content area grows to fill space */
+.hero {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .hero {
+    flex-direction: row;
+    text-align: left;
+  }
+}
+
+.textSection {
+  flex: 1;
 }
 
 .heading {
-  font-size: 2.4rem;
-  font-weight: 700;
-  color: #640259; /* a nice deep blue */
-  margin-bottom: 20px;
-  text-align: center;
-  letter-spacing: 1.2px;
+  font-size: 2.5rem;
+  color: #ffffff; /* white for contrast on gradient */
+  margin-bottom: 1rem;
 }
 
-.paragraph {
-  font-size: 1.125rem;
-  color: #444;
-  white-space: pre-line; /* to keep line breaks in text */
-  text-align: justify;
-  word-spacing: 2px;
+.highlight {
+  color: #c43ec3;
+}
+
+.paragraph,
+.description {
+  color: #f1ecec; /* lighter text on dark gradient */
+}
+
+.imageSection {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.heroImage {
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(100, 2, 89, 0.6);
+  max-width: 100%;
+  height: auto;
 }

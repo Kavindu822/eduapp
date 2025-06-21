@@ -1,53 +1,53 @@
-/* Navbar.module.css */
-
 .navbar {
-  background-color: #640259; /* Dark Purple */
+  background-color: #640259;
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   color: white;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.active a {
+  color: #ead6ff;
+  font-weight: bold;
+  border-bottom: 2px solid white;
 }
 
 .leftSection {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-}
-.active {
-  font-weight: bold;
-  color: #640259;
-  background-color: #f9e7ff;
-  border-radius: 10px;
-  padding: 0.3rem 0.7rem;
-  box-shadow: 0 4px 8px rgba(100, 2, 89, 0.2);
-  transition: all 0.2s ease-in-out;
+  gap: 2rem;
+  position: relative;
 }
 
 .logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #FFFFFF;
+  background-color: white;
+  padding: 6px 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
 }
 
+/* Hide navList on mobile by default */
 .navList {
   display: flex;
   gap: 1.5rem;
   list-style: none;
-  margin: 0;
-  padding: 0;
 }
 
 .navItem a {
   text-decoration: none;
-  color: #FFFFFF;
+  color: #ffffff;
   font-weight: 500;
   transition: color 0.3s ease;
 }
 
 .navItem a:hover {
-  color: #EAD6FF; /* Light Purple */
+  color: #ead6ff;
 }
 
 .rightSection {
@@ -56,8 +56,10 @@
   gap: 1rem;
 }
 
-.loginButton {
-  background-color: #CC33CC; /* Pinkish Purple */
+/* Buttons */
+.loginButton,
+.logoutButton {
+  background-color: #cc33cc;
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
@@ -65,19 +67,129 @@
   cursor: pointer;
   font-weight: 500;
   transition: background-color 0.3s ease;
+  text-decoration: none;
 }
 
-.loginButton:hover {
-  background-color: #E6CCFF;
-  color: #6A0DAD;
+.loginButton:hover,
+.logoutButton:hover {
+  background-color: #e6ccff;
+  color: #640259;
 }
 
-.icon {
-  cursor: pointer;
+/* Dropdown */
+.dropdown {
+  position: relative;
+}
+
+.dropdownToggle {
+  background-color: transparent;
+  border: 2px solid white;
   color: white;
-  transition: color 0.3s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
 }
 
-.icon:hover {
-  color: #EAD6FF;
+.dropdownMenu {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  background-color: white;
+  color: #640259;
+  min-width: 180px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  display: none;
+  flex-direction: column;
+  z-index: 999;
+}
+
+.dropdown:hover .dropdownMenu {
+  display: flex;
+}
+
+.dropdownMenu a {
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: #640259;
+  font-weight: 500;
+}
+
+.dropdownMenu a:hover {
+  background-color: #f4e2ff;
+}
+
+/* Hamburger styles */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 25px;
+  height: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 1rem;
+  z-index: 1001;
+}
+
+.bar {
+  height: 3px;
+  width: 100%;
+  background-color: white;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* Animate hamburger into X when open */
+.barOpen1 {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.barOpen2 {
+  opacity: 0;
+}
+
+.barOpen3 {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .navList {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #640259;
+    flex-direction: column;
+    gap: 0;
+    display: none;
+    z-index: 1000;
+  }
+
+  /* Show menu when active */
+  .navListMobileActive {
+    display: flex;
+  }
+
+  .navItem {
+    width: 100%;
+    border-top: 1px solid #cc33cc;
+  }
+
+  .navItem a {
+    display: block;
+    padding: 1rem 2rem;
+  }
+
+  .leftSection {
+    gap: 1rem;
+  }
+
+  .hamburger {
+    display: flex;
+  }
 }
