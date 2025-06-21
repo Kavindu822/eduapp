@@ -1,53 +1,37 @@
-import Ad from "@/models/Ad"; // Adjust the path if needed
 import { connect } from "@/lib/db";
 import { NextResponse } from "next/server";
+import Ad from "@/models/Ad";
 
-// GET Ad by ID
-export async function GET(req, { params }) {
+// GET all ads (public)
+export async function GET() {
   await connect();
+
   try {
-    const ad = await Ad.findById(params.id);
-    if (!ad) return NextResponse.json({ message: "Not found" }, { status: 404 });
-    return NextResponse.json(ad, { status: 200 });
+    const ads = await Ad.find({}).sort({ createdAt: -1 });
+    return NextResponse.json(ads, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    console.error("GET /api/ad error:", error);
+    return NextResponse.json({ error: "Failed to fetch ads" }, { status: 500 });
   }
 }
 
-// PATCH Ad by ID
-export async function PATCH(req, { params }) {
+// POST new ad (public - no auth)
+export async function POST(req) {
   await connect();
-  try {
-    const updates = await req.json();
-    const updated = await Ad.findByIdAndUpdate(params.id, updates, { new: true });
-    if (!updated) return NextResponse.json({ message: "Not found" }, { status: 404 });
-    return NextResponse.json(updated, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ error: "Update failed" }, { status: 500 });
-  }
-}
 
-// PUT Ad by ID
-export async function PUT(req, { params }) {
-  await connect();
   try {
-    const updates = await req.json();
-    const updated = await Ad.findByIdAndUpdate(params.id, updates, { new: true });
-    if (!updated) return NextResponse.json({ message: "Not found" }, { status: 404 });
-    return NextResponse.json(updated, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ error: "Update failed" }, { status: 500 });
-  }
-}
+    const body = await req.json();
 
-// DELETE Ad by ID
-export async function DELETE(req, { params }) {
-  await connect();
-  try {
-    const deleted = await Ad.findByIdAndDelete(params.id);
-    if (!deleted) return NextResponse.json({ message: "Not found" }, { status: 404 });
-    return NextResponse.json({ message: "Deleted successfully" }, { status: 200 });
+    // Optional: You can validate here if needed
+    const { title, description } = body;
+    if (!title || !description) {
+      return NextResponse.json({ error: "Missing title or description" }, { status: 400 });
+    }
+
+    const newAd = await Ad.create(body);
+    return NextResponse.json(newAd, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: "Delete failed" }, { status: 500 });
+    console.error("POST /api/ad error:", error);
+    return NextResponse.json({ error: "Failed to create ad" }, { status: 500 });
   }
 }

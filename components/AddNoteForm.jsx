@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Input from "@/components/Input";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useSession } from "next-auth/react";
-// import ".";
+import styles from "./AddNoteForm.module.css";
 
 const initialState = {
   name: "",
@@ -16,29 +15,23 @@ const initialState = {
 
 const AddNoteForm = () => {
   const CLOUDINARY_CLOUD_NAME = "dwq5xfmci";
-  const UPLOAD_PRESET = "iguide_past_papers"; // change preset for notes if needed
+  const UPLOAD_PRESET = "iguide_past_papers";
 
   const [state, setState] = useState(initialState);
   const [notes, setNotes] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [deletingId, setDeletingId] = useState(null);
   const [editingId, setEditingId] = useState(null);
 
   const router = useRouter();
-  const { data: session, status } = useSession();
   const searchParams = useSearchParams();
   const editIdFromQuery = searchParams.get("editId");
 
-  // Fetch notes when authenticated
   useEffect(() => {
-    if (status === "authenticated") {
-      fetchNotes();
-    }
-  }, [status]);
+    fetchNotes();
+  }, []);
 
-  // After notes are fetched, if editIdFromQuery exists, start editing that note
   useEffect(() => {
     if (notes.length > 0 && editIdFromQuery) {
       const noteToEdit = notes.find((note) => note._id === editIdFromQuery);
@@ -83,7 +76,6 @@ const AddNoteForm = () => {
     );
 
     if (!res.ok) throw new Error("Failed to upload note");
-
     const data = await res.json();
     return { id: data.public_id, url: data.secure_url };
   };
@@ -96,7 +88,6 @@ const AddNoteForm = () => {
       return;
     }
 
-    // For new note, file is required; for editing, optional
     if (!editingId && !state.noteFile) {
       setError("Note file is required for new notes.");
       return;
@@ -123,11 +114,10 @@ const AddNoteForm = () => {
       let response;
 
       if (editingId) {
-        response = await fetch("/api/note/${editingId}", {
+        response = await fetch(`/api/note/${editingId}`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${session?.user?.accessToken}`,
           },
           body: JSON.stringify(payload),
         });
@@ -136,7 +126,6 @@ const AddNoteForm = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization:`Bearer ${session?.user?.accessToken}`,
           },
           body: JSON.stringify(payload),
         });
@@ -161,33 +150,6 @@ const AddNoteForm = () => {
     setIsLoading(false);
   };
 
-  // const handleDelete = async (id) => {
-  //   setDeletingId(id);
-  //   setError("");
-  //   setSuccess("");
-
-  //   try {
-  //     const res = await fetch(/api/note/${id}, {
-  //       method: "DELETE",
-  //       headers: {
-  //         Authorization: Bearer ${session?.user?.accessToken},
-  //       },
-  //     });
-
-  //     if (res.ok) {
-  //       setSuccess("Note deleted successfully");
-  //       fetchNotes();
-  //     } else {
-  //       setError("Failed to delete note");
-  //     }
-  //   } catch (err) {
-  //     setError("An error occurred while deleting");
-  //     console.error(err);
-  //   }
-
-  //   setDeletingId(null);
-  // };
-
   const startEditing = (note) => {
     setEditingId(note._id);
     setState({
@@ -195,7 +157,7 @@ const AddNoteForm = () => {
       year: note.year,
       level: String(note.level),
       language: note.language,
-      noteFile: note.note.url, // Keep current note URL as string (not a File)
+      noteFile: note.note.url,
     });
     setError("");
     setSuccess("");
@@ -208,40 +170,77 @@ const AddNoteForm = () => {
     setSuccess("");
   };
 
-  if (status === "loading") return <p>Loading...</p>;
-  if (status === "unauthenticated") return <p>Access denied</p>;
-
   return (
-    <div className="container">
-      <div className="form-section">
-        <h2>{editingId ? "Update Note" : "Add Note"}</h2>
-        <form onSubmit={handleSubmit}>
-          <Input label="Name" type="text" name="name" onChange={handleChange} value={state.name} />
+    <div className={styles.container}>
+      <div className={styles.formSection}>
+        <h2 className={styles.heading}>{editingId ? "Update Note" : "Add Note"}</h2>
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <Input
+            label="Name"
+            type="text"
+            name="name"
+            onChange={handleChange}
+            value={state.name}
+            className={styles.input}
+          />
 
-          <label htmlFor="level">Level</label>
-          <select name="level" value={state.level} onChange={handleChange} required>
+          <label htmlFor="level" className={styles.label}>
+            Level
+          </label>
+          <select
+            name="level"
+            value={state.level}
+            onChange={handleChange}
+            required
+            className={styles.input} // Same style for select as input for consistency
+          >
             <option value="">Select level</option>
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
           </select>
 
-          <Input label="Year" type="number" name="year" onChange={handleChange} value={state.year} />
+          <Input
+            label="Year"
+            type="number"
+            name="year"
+            onChange={handleChange}
+            value={state.year}
+            className={styles.input}
+          />
 
-          <label htmlFor="language">Language</label>
-          <select name="language" value={state.language} onChange={handleChange} required>
+          <label htmlFor="language" className={styles.label}>
+            Language
+          </label>
+          <select
+            name="language"
+            value={state.language}
+            onChange={handleChange}
+            required
+            className={styles.input} // Same style here too
+          >
             <option value="">Select Language</option>
             <option value="Sinhala">Sinhala</option>
             <option value="English">English</option>
             <option value="Tamil">Tamil</option>
           </select>
 
-          <label>Upload Note (PDF) {editingId ? "(leave empty to keep current)" : ""}</label>
-          <input onChange={handleChange} type="file" name="noteFile" accept=".pdf" />
+          <label className={styles.label}>
+            Upload Note (PDF) {editingId ? "(leave empty to keep current)" : ""}
+          </label>
+          <input
+            onChange={handleChange}
+            type="file"
+            name="noteFile"
+            accept=".pdf"
+            className={styles.fileInput}
+          />
 
-          {state.noteFile && typeof state.noteFile !== "string" && <p>Selected file: {state.noteFile.name}</p>}
+          {state.noteFile && typeof state.noteFile !== "string" && (
+            <p className={styles.message}>Selected file: {state.noteFile.name}</p>
+          )}
           {editingId && typeof state.noteFile === "string" && (
-            <p>
+            <p className={styles.message}>
               Current Note:{" "}
               <a href={state.noteFile} target="_blank" rel="noopener noreferrer">
                 View Note
@@ -249,84 +248,44 @@ const AddNoteForm = () => {
             </p>
           )}
 
-          {error && <p style={{ color: "red" }}>{error}</p>}
-          {success && <p style={{ color: "green" }}>{success}</p>}
+          {error && (
+            <p className={`${styles.message} ${styles.error}`}>
+              {error}
+            </p>
+          )}
+          {success && (
+            <p className={`${styles.message} ${styles.success}`}>
+              {success}
+            </p>
+          )}
 
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? (editingId ? "Updating..." : "Uploading...") : editingId ? "Update" : "Add"}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={styles.button}
+          >
+            {isLoading
+              ? editingId
+                ? "Updating..."
+                : "Uploading..."
+              : editingId
+              ? "Update"
+              : "Add"}
           </button>
+
           {editingId && (
             <button
               type="button"
               onClick={cancelEditing}
-              style={{
-                marginLeft: "1rem",
-                padding: "0.4rem 0.8rem",
-                backgroundColor: "#666",
-                color: "white",
-                border: "none",
-                borderRadius: "0.4rem",
-                cursor: "pointer",
-              }}
+              className={styles.cancelButton}
             >
               Cancel
             </button>
           )}
         </form>
       </div>
-
-      {/* <div className="list-section">
-        <h3>Existing Notes</h3>
-        <ul>
-          {notes.map((note) => (
-            <li key={note._id}>
-              <b>{note.name}</b> ({note.year})
-              <br />
-              Level: {note.level}
-              <br />
-              Language: {note.language}
-              <br />
-              <a href={note.note.url} target="_blank" rel="noopener noreferrer">
-                View Note
-              </a>
-              <br />
-              <button
-                onClick={() => handleDelete(note._id)}
-                disabled={deletingId === note._id}
-                style={{
-                  marginTop: "0.5rem",
-                  padding: "0.4rem 0.8rem",
-                  backgroundColor: "#640259",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "0.4rem",
-                  cursor: "pointer",
-                  marginRight: "0.5rem",
-                }}
-              >
-                {deletingId === note._id ? "Deleting..." : "Delete"}
-              </button>
-              <button
-                onClick={() => startEditing(note)}
-                disabled={isLoading}
-                style={{
-                  marginTop: "0.5rem",
-                  padding: "0.4rem 0.8rem",
-                  backgroundColor: "#640259",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "0.4rem",
-                  cursor: "pointer",
-                }}
-              >
-                Edit
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div> */}
     </div>
   );
 };
 
-export default AddNoteForm; 
+export default AddNoteForm;

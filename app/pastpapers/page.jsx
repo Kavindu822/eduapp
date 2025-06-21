@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { Eye, Download, Trash2, Pencil } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import "./page.css";
 
@@ -10,39 +9,31 @@ const Pastpapers = () => {
   const [pastpapers, setPastpapers] = useState([]);
   const [selectedLevel, setSelectedLevel] = useState(1);
   const [selectedLanguage, setSelectedLanguage] = useState("Sinhala");
-
-  const { data: session, status } = useSession();
   const router = useRouter();
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
+  const backendUrl = process.env.NEXT_PUBLIC_URL;
 
   useEffect(() => {
-    const fetchPastpapers = async () => {
-      try {
-        const res = await fetch(`${backendUrl}/api/pastpaper`, {
-          cache: "no-store",
-        });
-        if (!res.ok) throw new Error("Failed to fetch data");
-        const data = await res.json();
-        setPastpapers(data);
-      } catch (error) {
-        console.error("Error fetching past papers:", error);
-      }
-    };
     fetchPastpapers();
-  }, [backendUrl]);
+  }, []);
+
+  const fetchPastpapers = async () => {
+    try {
+      const res = await fetch(`${backendUrl}/api/pastpaper`, { cache: "no-store" });
+      if (!res.ok) throw new Error("Failed to fetch data");
+      const data = await res.json();
+      setPastpapers(data);
+    } catch (error) {
+      console.error("Error fetching past papers:", error);
+    }
+  };
 
   const deletePaper = async (id) => {
-    const confirmDelete = confirm("Are you sure you want to delete this paper?");
-    if (!confirmDelete) return;
+    if (!confirm("Are you sure you want to delete this paper?")) return;
 
     try {
       const res = await fetch(`${backendUrl}/api/pastpaper/${id}`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.user?.accessToken}`,
-        },
       });
 
       if (!res.ok) throw new Error("Delete failed");
@@ -83,7 +74,9 @@ const Pastpapers = () => {
                 {["Sinhala", "English", "Tamil"].map((language) => (
                   <div
                     key={language}
-                    className={`sidebar-subitem ${selectedLanguage === language ? "active" : ""}`}
+                    className={`sidebar-subitem ${
+                      selectedLanguage === language ? "active" : ""
+                    }`}
                     onClick={() => setSelectedLanguage(language)}
                   >
                     {language}
@@ -131,25 +124,21 @@ const Pastpapers = () => {
                     <Download color="#640259" size={18} style={{ marginRight: "0.5rem" }} />
                   </a>
 
-                  {status === "authenticated" && (
-                    <>
-                      <button
-                        className="btn delete"
-                        onClick={() => deletePaper(paper._id)}
-                        title="Delete Paper"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                  <button
+                    className="btn delete"
+                    onClick={() => deletePaper(paper._id)}
+                    title="Delete Paper"
+                  >
+                    <Trash2 size={18} />
+                  </button>
 
-                      <button
-                        className="btn edit"
-                        onClick={() => editPaper(paper._id)}
-                        title="Edit Paper"
-                      >
-                        <Pencil size={18} />
-                      </button>
-                    </>
-                  )}
+                  <button
+                    className="btn edit"
+                    onClick={() => editPaper(paper._id)}
+                    title="Edit Paper"
+                  >
+                    <Pencil size={18} />
+                  </button>
                 </div>
               </div>
             ))

@@ -1,5 +1,3 @@
-/* AddNoteForm.module.css */
-
 .container {
   padding: 1rem;
   background: #f9f9f9;
@@ -65,13 +63,13 @@
 }
 
 .cancelButton {
-  background-color: #666;
-  color: white;
+  background-color: #ccc;
+  color: #333;
   margin-left: 1rem;
 }
 
 .cancelButton:hover {
-  background-color: #444;
+  background-color: #999;
 }
 
 .message {

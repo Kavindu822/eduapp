@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { Eye, Download, Trash2, Pencil } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import "./page.css";
 
@@ -11,10 +10,9 @@ const Notes = () => {
   const [selectedLevel, setSelectedLevel] = useState(1);
   const [selectedLanguage, setSelectedLanguage] = useState("Sinhala");
   const [searchTerm, setSearchTerm] = useState("");
-  const { data: session, status } = useSession();
   const router = useRouter();
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+  const backendUrl = process.env.NEXT_PUBLIC_URL;
 
   useEffect(() => {
     fetchNotes();
@@ -32,16 +30,11 @@ const Notes = () => {
   };
 
   const deleteNote = async (id) => {
-    const confirmDelete = confirm("Are you sure you want to delete this note?");
-    if (!confirmDelete) return;
+    if (!confirm("Are you sure you want to delete this note?")) return;
 
     try {
       const res = await fetch(`${backendUrl}/api/note/${id}`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.user?.accessToken}`,
-        },
       });
 
       if (!res.ok) throw new Error("Delete failed");
@@ -53,7 +46,7 @@ const Notes = () => {
   };
 
   const editNote = (id) => {
-router.push(`/addnote?editId=${id}`);
+    router.push(`/addnote?editId=${id}`);
   };
 
   const filteredNotes = notes.filter(
@@ -81,7 +74,9 @@ router.push(`/addnote?editId=${id}`);
         {[1, 2, 3].map((level) => (
           <div key={level}>
             <div
-              className={`sidebar-item ${selectedLevel === level ? "active" : ""}`}
+              className={`sidebar-item ${
+                selectedLevel === level ? "active" : ""
+              }`}
               onClick={() => {
                 setSelectedLevel(level);
                 setSelectedLanguage("Sinhala");
@@ -95,7 +90,9 @@ router.push(`/addnote?editId=${id}`);
                 {["Sinhala", "English", "Tamil"].map((language) => (
                   <div
                     key={language}
-                    className={`sidebar-subitem ${selectedLanguage === language ? "active" : ""}`}
+                    className={`sidebar-subitem ${
+                      selectedLanguage === language ? "active" : ""
+                    }`}
                     onClick={() => setSelectedLanguage(language)}
                   >
                     {language}
@@ -109,6 +106,14 @@ router.push(`/addnote?editId=${id}`);
 
       {/* Main Area */}
       <main className="main-area">
+        {/* <input
+          type="text"
+          placeholder="Search notes..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ marginBottom: "1rem" }}
+        /> */}
+
         <div className="cardsGrid">
           {filteredNotes.length === 0 && selectedLanguage && (
             <p style={{ marginTop: "2rem" }}>No notes found for this criteria.</p>
@@ -147,25 +152,21 @@ router.push(`/addnote?editId=${id}`);
                     <Download size={18} />
                   </a>
 
-                  {status === "authenticated" && (
-                    <>
-                      <button
-                        className="btn delete"
-                        onClick={() => deleteNote(note._id)}
-                        title="Delete Note"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                  <button
+                    className="btn delete"
+                    onClick={() => deleteNote(note._id)}
+                    title="Delete Note"
+                  >
+                    <Trash2 size={18} />
+                  </button>
 
-                      <button
-                        className="btn edit"
-                        onClick={() => editNote(note._id)}
-                        title="Edit Note"
-                      >
-                        <Pencil size={18} />
-                      </button>
-                    </>
-                  )}
+                  <button
+                    className="btn edit"
+                    onClick={() => editNote(note._id)}
+                    title="Edit Note"
+                  >
+                    <Pencil size={18} />
+                  </button>
                 </div>
               </div>
             );
